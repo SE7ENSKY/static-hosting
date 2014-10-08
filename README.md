@@ -42,3 +42,9 @@ chmod u=rx,g=,w= /sbin/s7ctl
 2. В файлі `/sbin/s7ctl` потрібно на місцях `MYSQL_*` вставити правильні значення для доступу до БД.
 
 ### Встановити nginx як вебсервер, налаштувати хост для хостингу статики.
+1. Встановити nginx: `apt-get install nginx`
+2. Встановити конфігурації для nginx `echo 'include /srv/_.static/nginx.conf;' > /etc/nginx/conf.d/_.static.conf`
+3. Скопіювати `_.static.conf` в `/srv/_.static/nginx.conf`
+4. Налаштувати server_name в `/srv/_.static/nginx.conf`
+5. `service nginx restart`
+```
