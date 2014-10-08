@@ -15,8 +15,8 @@ create)
   [ "$#" -ne 3 ] && print_usage
   STATIC_USER=$2
   PASSWORD=$3
-  USER=$STATIC_USER.static.se7enapp.com
-  USER_HOME=/srv/_.static.se7enapp.com/$STATIC_USER
+  USER=$STATIC_USER.static.domain.com
+  USER_HOME=/srv/_.static/$STATIC_USER
   PASSWORD_HASH=$(/bin/echo "{md5}"`/bin/echo -n $PASSWORD | openssl dgst -binary -md5 | openssl enc -base64`)
   execute_sql "INSERT INTO ftpuser \
     (userid, passwd, uid, gid, homedir) \
@@ -29,8 +29,8 @@ create)
 remove)
   [ "$#" -ne 2 ] && print_usage
   STATIC_USER=$2
-  USER=$STATIC_USER.static.se7enapp.com
-  USER_HOME=/srv/_.static.se7enapp.com/$STATIC_USER
+  USER=$STATIC_USER.static.domain.com
+  USER_HOME=/srv/_.static/$STATIC_USER
   execute_sql "DELETE FROM ftpuser WHERE userid='$USER';"
   mkdir -p /srv/s7-removed
   mv $USER_HOME /srv/s7-removed/
@@ -41,8 +41,8 @@ passwd)
   [ "$#" -ne 3 ] && print_usage
   STATIC_USER=$2
   PASSWORD=$3
-  USER=$STATIC_USER.static.se7enapp.com
-  USER_HOME=/srv/_.static.se7enapp.com/$STATIC_USER
+  USER=$STATIC_USER.static.domain.com
+  USER_HOME=/srv/_.static/$STATIC_USER
   PASSWORD_HASH=$(/bin/echo "{md5}"`/bin/echo -n $PASSWORD | openssl dgst -binary -md5 | openssl enc -base64`)
   execute_sql "UPDATE ftpuser \
     SET passwd='$PASSWORD_HASH' WHERE userid='$USER';"
