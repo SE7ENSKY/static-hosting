@@ -37,7 +37,7 @@ Include /etc/proftpd/sql.conf
 1. Встановити файл `s7ctl` в /sbin, дать коректні права:
 ```bash
 chown root:root /sbin/s7ctl
-chmod u=rx,g=,w= /sbin/s7ctl
+chmod 700 /sbin/s7ctl
 ```
 2. В файлі `/sbin/s7ctl` потрібно на місцях `MYSQL_*` вставити правильні значення для доступу до БД.
 
