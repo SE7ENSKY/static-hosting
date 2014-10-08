@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -e
+
+function execute_sql {
+	echo $1 | mysql -h $MYSQL_HOST -P $MYSQL_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DBNAME
+}
+function print_usage {
+	echo "Usage: s7ctl [ create | remove | list | passwd ] [ username ] [ password ]"
+	exit 1
+}
+
+case $1 in
+create)
+  [ "$#" -ne 3 ] && print_usage
+  STATIC_USER=$2
+  PASSWORD=$3
+  USER=$STATIC_USER.static.se7enapp.com
+  USER_HOME=/srv/_.static.se7enapp.com/$STATIC_USER
+  PASSWORD_HASH=$(/bin/echo "{md5}"`/bin/echo -n $PASSWORD | openssl dgst -binary -md5 | openssl enc -base64`)
+  execute_sql "INSERT INTO ftpuser \
+    (userid, passwd, uid, gid, homedir) \
+    VALUES ('$USER', '$PASSWORD_HASH', 8000, 8000, '$USER_HOME');"
+  mkdir -p $USER_HOME
+  chown 8000:8000 $USER_HOME
+  echo $USER successfully created
+  ;;
+
+remove)
+  [ "$#" -ne 2 ] && print_usage
+  STATIC_USER=$2
+  USER=$STATIC_USER.static.se7enapp.com
+  USER_HOME=/srv/_.static.se7enapp.com/$STATIC_USER
+  execute_sql "DELETE FROM ftpuser WHERE userid='$USER';"
+  mkdir -p /srv/s7-removed
+  mv $USER_HOME /srv/s7-removed/
+  echo $USER successfully removed
+  ;;
+
+passwd)
+  [ "$#" -ne 3 ] && print_usage
+  STATIC_USER=$2
+  PASSWORD=$3
+  USER=$STATIC_USER.static.se7enapp.com
+  USER_HOME=/srv/_.static.se7enapp.com/$STATIC_USER
+  PASSWORD_HASH=$(/bin/echo "{md5}"`/bin/echo -n $PASSWORD | openssl dgst -binary -md5 | openssl enc -base64`)
+  execute_sql "UPDATE ftpuser \
+    SET passwd='$PASSWORD_HASH' WHERE userid='$USER';"
+  echo Passwd for $USER changed successfully
+  ;;
+
+list)
+  execute_sql "SELECT userid AS __cut_colname__ FROM ftpuser ORDER BY userid" | grep -v __cut_colname__
+  ;;
+
+*)
+  print_usage
+
+esac
