@@ -47,4 +47,3 @@ chmod u=rx,g=,w= /sbin/s7ctl
 3. Скопіювати `_.static.conf` в `/srv/_.static/nginx.conf`
 4. Налаштувати server_name в `/srv/_.static/nginx.conf`
 5. `service nginx restart`
-```
