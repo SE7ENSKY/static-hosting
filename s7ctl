@@ -2,21 +2,36 @@
 
 set -e
 
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=root
+MYSQL_DBNAME=ftp
+STATIC_DOMAIN=static.domain.com
+STATIC_ROOT=/srv/static
+CONFIGURED=false # change to true when you finished configuring
+
+if ! $CONFIGURED; then
+        echo "s7ctl: Not configured. Edit s7ctl executable to configure."
+        exit 1
+fi
+
 function execute_sql {
-	echo $1 | mysql -h $MYSQL_HOST -P $MYSQL_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DBNAME
+        echo $1 | mysql -h $MYSQL_HOST -P $MYSQL_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DBNAME
 }
 function print_usage {
-	echo "Usage: s7ctl [ create | remove | list | passwd ] [ username ] [ password ]"
-	exit 1
+        echo "Usage: s7ctl [ create | remove | list | passwd ] [ username ] [ password ]"
+        exit 1
 }
 
 case $1 in
+
 create)
   [ "$#" -ne 3 ] && print_usage
   STATIC_USER=$2
   PASSWORD=$3
-  USER=$STATIC_USER.static.domain.com
-  USER_HOME=/srv/_.static/$STATIC_USER
+  USER=$STATIC_USER.$STATIC_DOMAIN
+  USER_HOME=$STATIC_ROOT/$STATIC_USER
   PASSWORD_HASH=$(/bin/echo "{md5}"`/bin/echo -n $PASSWORD | openssl dgst -binary -md5 | openssl enc -base64`)
   execute_sql "INSERT INTO ftpuser \
     (userid, passwd, uid, gid, homedir) \
@@ -29,11 +44,11 @@ create)
 remove)
   [ "$#" -ne 2 ] && print_usage
   STATIC_USER=$2
-  USER=$STATIC_USER.static.domain.com
-  USER_HOME=/srv/_.static/$STATIC_USER
+  USER=$STATIC_USER.$STATIC_DOMAIN
+  USER_HOME=$STATIC_ROOT/$STATIC_USER
   execute_sql "DELETE FROM ftpuser WHERE userid='$USER';"
-  mkdir -p /srv/s7-removed
-  mv $USER_HOME /srv/s7-removed/
+  mkdir -p $STATIC_ROOT/.removed/
+  mv $USER_HOME $STATIC_ROOT/.removed/`date +%Y%m%d%H%M%S`-$USER
   echo $USER successfully removed
   ;;
 
@@ -41,8 +56,8 @@ passwd)
   [ "$#" -ne 3 ] && print_usage
   STATIC_USER=$2
   PASSWORD=$3
-  USER=$STATIC_USER.static.domain.com
-  USER_HOME=/srv/_.static/$STATIC_USER
+  USER=$STATIC_USER.$STATIC_DOMAIN
+  USER_HOME=$STATIC_ROOT/$STATIC_USER
   PASSWORD_HASH=$(/bin/echo "{md5}"`/bin/echo -n $PASSWORD | openssl dgst -binary -md5 | openssl enc -base64`)
   execute_sql "UPDATE ftpuser \
     SET passwd='$PASSWORD_HASH' WHERE userid='$USER';"
