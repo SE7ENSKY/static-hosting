@@ -31,7 +31,8 @@ PassivePorts 49152 65534
 AuthOrder mod_sql.c
 Include /etc/proftpd/sql.conf
 ```
-4. Перезапустити ФТП сервер: ```service proftpd restart```
+4. Пофіксити автоматичний перезапуск http://stackoverflow.com/questions/23666697/proftpd-killed-signal-15-error-how-to-fix-logrotate-restart-error
+5. Перезапустити ФТП сервер: ```service proftpd restart```
 
 ### Встановити s7ctl, налаштувати.
 1. Встановити файл `s7ctl` в /sbin, дать коректні права:
