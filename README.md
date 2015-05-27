@@ -32,6 +32,15 @@ AuthOrder mod_sql.c
 Include /etc/proftpd/sql.conf
 ```
 4. Пофіксити автоматичний перезапуск http://stackoverflow.com/questions/23666697/proftpd-killed-signal-15-error-how-to-fix-logrotate-restart-error
+В файлі `/etc/init.d/proftpd`:
+Шукаємо рядок
+```
+start-stop-daemon --stop --signal $SIGNAL --quiet --pidfile "$PIDFILE"
+```
+і замінюємо на:
+```
+start-stop-daemon --stop --signal $SIGNAL --retry 1 --quiet --pidfile "$PIDFILE"
+```
 5. Перезапустити ФТП сервер: ```service proftpd restart```
 
 ### Встановити s7ctl, налаштувати.
