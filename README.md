@@ -57,3 +57,6 @@ chmod 700 /sbin/s7ctl
 3. Скопіювати `nginx.conf` в `/srv/_.static/nginx.conf`
 4. Налаштувати server_name в `/srv/_.static/nginx.conf`
 5. `service nginx restart`
+
+для роботи має бути встановлений mysql
+`apt-get install mysql-client-core-5.6`
